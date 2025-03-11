@@ -1,26 +1,31 @@
 function Jg_pseudo = computeGeneralizedJacobian(x_base,xe_current,p1,p2,p3,p4,p5,p6)
-    % è®¡ç®—å¹¿ä¹‰é›…å¯æ¯”çŸ©é˜µï¼ˆå¼16ï¼‰
-    % p1 p2 p3 p4 p5 p6 % æœ«ç«¯åœ¨æœºæ¢°è‡‚åæ ‡ç³»ä¸­çš„ä½ç½®
-     z1=[0;0;1];z2=[0;0;1];z3=[0;0;1];
-   z4=[0;0;-1];z5=[0;0;-1];z6=[0;0;-1];
-    % è®¡ç®— r_{0e} = r_e - r_0 ï¼ˆæ­¤å¤„r_eä¸ºå…¨å±€åæ ‡ï¼Œr_0ä¸ºåŸºåº§ä½ç½®ï¼‰
-    r_0e1 = xe_current(1:3) - x_base; 
-    r_0e2 = xe_current(4:6) - x_base; 
-    % æ„å»º J_b^i çŸ©é˜µï¼ˆå¼16ï¼‰
-    J_b1 = [eye(3), -skew(r_0e1); 
-           zeros(3), eye(3)];
-    J_b2= [eye(3), -skew(r_0e2); 
-           zeros(3), eye(3)];
-    Jb=[J_b1; J_b2];
-    
-    % è®¡ç®—æœºæ¢°è‡‚é›…å¯æ¯” J_Te, J_Re ï¼ˆéœ€å…·ä½“æ¨¡å‹å®ç°ï¼‰
-    [J_Te] = [myCrossProduct(z1,xe_current(1:3)-p1),myCrossProduct(z2,xe_current(1:3)-p2),myCrossProduct(z3,xe_current(1:3)-p3),zeros(3,3);
-             z1,z2,z3,zeros(3,3)];
+    Jg_pseudo = computeGeneralizedJacobian(x_base,xe_current,p1,p2,p3,p4,p5,p6,J_bmv,J_bmw);
 
-    [J_Re]= [zeros(3,3),myCrossProduct(z4,xe_current(4:6)-p4),myCrossProduct(z5,xe_current(4:6)-p5),myCrossProduct(z6,xe_current(4:6)-p6);
-               zeros(3,3),z4,z5,z6];
-    [J_bm_v, J_bm_w] = computeBaseJacobian(R,JR,JT);
-    % å¹¿ä¹‰é›…å¯æ¯” J_g = J_b * [J_bm_v; J_bm_w] + [J_Te; J_Re]
-    Jg = J_b * [J_bm_v;J_bm_w] + [J_Te; J_Re]; 
-    Jg_pseudo=Jg'/(Jg*Jg')
+% ¼ÆËã¹ãÒåÑÅ¿É±È¾ØÕó£¨Ê½16£© p1 p2 p3 p4 p5 p6 % Ä©¶ËÔÚ»úĞµ±Û×ø±êÏµÖĞµÄÎ»ÖÃ
+z1=[0;0;1];z2=[0;0;1];z3=[0;0;1];
+z4=[0;0;-1];z5=[0;0;-1];z6=[0;0;-1];
+
+% ¼ÆËã r_{0e} = r_e - r_0 £¨´Ë´¦r_eÎªÈ«¾Ö×ø±ê£¬r_0Îª»ù×ùÎ»ÖÃ£©
+r_0e1 = xe_current(1:3) - x_base;
+r_0e2 = xe_current(4:6) - x_base;
+
+% ¹¹½¨ J_b^i ¾ØÕó£¨Ê½16£©
+J_b1 = [eye(3), -skew(r_0e1);
+        zeros(3), eye(3)];
+J_b2= [eye(3), -skew(r_0e2);
+        zeros(3), eye(3)];
+
+Jb=[J_b1; J_b2];
+
+% ¼ÆËã»úĞµ±ÛÑÅ¿É±È J_Te, J_Re £¨Ğè¾ßÌåÄ£ĞÍÊµÏÖ£©
+[J_Te] = [myCrossProduct(z1,xe_current(1:3)-p1),myCrossProduct(z2,xe_current(1:3)-p2),myCrossProduct(z3,xe_current(1:3)-p3),zeros(3,3);
+          z1,z2,z3,zeros(3,3)];
+[J_Re]= [zeros(3,3),myCrossProduct(z4,xe_current(4:6)-p4),myCrossProduct(z5,xe_current(4:6)-p5),myCrossProduct(z6,xe_current(4:6)-p6);
+        zeros(3,3),z4,z5,z6];
+    
+[J_bm_v, J_bm_w] = computeBaseJacobian(R,JR,JT);
+
+% ¹ãÒåÑÅ¿É±È J_g = J_b * [J_bm_v; J_bm_w] + [J_Te; J_Re]
+Jg = J_b * [J_bm_v;J_bm_w] + [J_Te; J_Re];
+Jg_pseudo = Jg'/(Jg*Jg')
 end
